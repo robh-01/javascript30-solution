@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Scoped CSS Variables and JS</title>
+    <link rel="icon" href="https://fav.farm/🔥" />
+  </head>
+  <body>
+    <h2>Update CSS Variables with <span class="hl">JS</span></h2>
+
+    <div class="controls">
+      <label for="spacing">Spacing:</label>
+      <input
+        id="spacing"
+        type="range"
+        name="spacing"
+        min="10"
+        max="200"
+        value="50"
+        data-sizing="px"
+      />
+
+      <label for="blur">Blur:</label>
+      <input
+        id="blur"
+        type="range"
+        name="blur"
+        min="0"
+        max="25"
+        value="3"
+        data-sizing="px"
+      />
+
+      <label for="base">Base Color</label>
+      <input id="base" type="color" name="base" value="#ffc600" />
+    </div>
+
+    <img
+      src="https://images.unsplash.com/photo-1558980664-2506fca6bfc2?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      class="main-image"
+    />
+
+    <style>
+      /*
+      misc styles, nothing to do with CSS variables
+    */
+      :root {
+        --blur-value: 0;
+        --spacing-value: 0;
+        --base-color: black;
+      }
+
+      body {
+        text-align: center;
+        background: #193549;
+        color: white;
+        font-family: "helvetica neue", sans-serif;
+        font-weight: 100;
+        font-size: 50px;
+      }
+
+      .controls {
+        margin-bottom: 50px;
+      }
+
+      input {
+        width: 100px;
+      }
+
+      .main-image {
+        width: 500px;
+        height: auto;
+
+        filter: blur(var(--blur-value));
+        padding: var(--spacing-value);
+        background: var(--base-color);
+      }
+
+      .hl {
+        color: var(--base-color);
+      }
+
+    </style>
+
+    <script>
+      const root = document.documentElement;
+      const blurSlider = document.getElementById("blur");
+      const spacingSlider = document.getElementById("spacing");
+      const baseColorSelector = document.getElementById("base");
+
+      //set initial values
+      root.style.setProperty("--blur-value", `${blurSlider.value}px`);
+      root.style.setProperty("--spacing-value", `${spacingSlider.value}px`);
+      root.style.setProperty("--base-color", baseColorSelector.value);
+
+      function changeBlurValue(value) {
+        root.style.setProperty("--blur-value", `${value}px`);
+      }
+
+      function changeSpacingValue(value) {
+        root.style.setProperty("--spacing-value", `${value}px`);
+      }
+
+      function changeBaseColor(color) {
+        root.style.setProperty("--base-color", color);
+      }
+
+      blurSlider.addEventListener("input", (e) => {
+        changeBlurValue(e.target.value);
+      });
+
+      spacingSlider.addEventListener("input", (e) => {
+        changeSpacingValue(e.target.value);
+      });
+
+      baseColorSelector.addEventListener("input", (e) => {
+        changeBaseColor(e.target.value);
+      });
+    </script>
+  </body>
+</html>
