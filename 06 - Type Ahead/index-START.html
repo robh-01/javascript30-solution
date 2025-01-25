@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Type Ahead 👀</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="https://fav.farm/🔥" />
+  </head>
+  <body>
+    <form class="search-form">
+      <input type="text" class="search" placeholder="City or State" />
+      <ul class="suggestions">
+        <li>Filter for a city</li>
+        <li>or a state</li>
+      </ul>
+    </form>
+    <script>
+      const endpoint =
+        "https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json";
+
+      const cityList = [];
+      fetch(endpoint, { mode: "cors" })
+        //response Object
+        .then((response) => {
+          return response.json();
+        })
+        .then((response) => {
+          cityList.push(...response);
+        })
+        .catch((err) => {
+          console.log("Fetch failed: ", err.message);
+        });
+
+      const searchBar = document.querySelector(".search");
+      const suggestionList = document.querySelector(".suggestions");
+
+      //takes an integer and returns a string formatted with commas
+      // 123456 to "1,234,567"
+      // -123456 to "-123,456"
+      // 42 to "42"
+      // 1000 to "1,000"
+      const formatWithCommas = (num) => Number(num).toLocaleString("en-US");
+
+      function wrapKeywordInSpan(text, keyword) {
+        // Guard clause: Skip processing if keyword is empty
+        if (keyword.trim() === "") return text;
+
+        // Escape special regex characters in the keyword
+        const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regex = new RegExp(`(${escapedKeyword})`, "gi");
+        return text.replace(regex, '<span class="hl">$1</span>');
+      }
+
+      function renderCitySuggestion(cityList, keyword) {
+        suggestionList.textContent = "";
+
+        for (const cityElement of cityList) {
+          const cityItem = document.createElement("li");
+
+          // Highlight each text part individually (city, state, population)
+          const highlightedCity = wrapKeywordInSpan(cityElement.city, keyword);
+          const highlightedState = wrapKeywordInSpan(
+            cityElement.state,
+            keyword
+          );
+          const formattedPopulation = formatWithCommas(cityElement.population);
+
+          // Build the HTML with pre-highlighted text parts
+          const formattedHTML = `
+      <span class="name">${highlightedCity}, ${highlightedState}</span>
+      <span class="population">${formattedPopulation}</span>
+    `;
+
+          cityItem.innerHTML = formattedHTML;
+          suggestionList.appendChild(cityItem);
+        }
+      }
+
+      function searchMatchedCityElements(keyword) {
+        return cityList.filter((cityElement) => {
+          return (
+            cityElement.city.toLowerCase().includes(keyword.toLowerCase()) ||
+            cityElement.state.toLowerCase().includes(keyword.toLowerCase())
+          );
+        });
+      }
+
+      searchBar.addEventListener("input", (e) => {
+        renderCitySuggestion(
+          searchMatchedCityElements(e.target.value),
+          e.target.value
+        );
+      });
+    </script>
+  </body>
+</html>
